@@ -3,10 +3,13 @@ package com.auth.services;
 import java.io.IOException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.auth.dtos.ProfileImageDTO;
+import com.auth.dtos.UserDTO;
 import com.auth.models.ProfileImageModel;
 import com.auth.models.UserModel;
 import com.auth.repositories.ProfileImageRepository;
@@ -54,23 +57,34 @@ public class UserService {
                 return;
             }
 
-            ProfileImageModel img = new ProfileImageModel(user.getId(), image.getBytes());           
+            ProfileImageModel img = new ProfileImageModel(user.getId(), image.getBytes(), MediaType.parseMediaType(image.getContentType()));           
             profileImageRepository.save(img);
         }
     }
 
-    public ProfileImageModel getProfileImage(String authToken) throws IOException {
-        String username = jwt.verifyToken(authToken).getSubject();
-        UserModel user = userRepository.findByUsername(username);
+    public ProfileImageDTO getProfileImage(Long id) throws IOException {
+        UserModel user = userRepository.findByUserId(id);
+
         if (user != null) {
             ProfileImageModel img = profileImageRepository.getByUserId(user.getId());
 
             if (img != null) {
-                return img;
+                return new ProfileImageDTO(img.getId(), img.getUserId(), img.getImageBytes(), img.getImageType());
             }
         }
 
         return null;
     }
 
+    public UserDTO getById(Long id) {
+        UserModel user = userRepository.findByUserId(id);
+        ProfileImageModel img = profileImageRepository.getByUserId(id);
+
+        UserDTO userDTO = null;
+        if (user != null) {
+            userDTO = new UserDTO(user.getId(), new ProfileImageDTO(img.getId(), img.getUserId(), img.getImageBytes(), img.getImageType()), user.getUsername(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getTelNumber());
+        }
+
+        return userDTO;
+    }
 }

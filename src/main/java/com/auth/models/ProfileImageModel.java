@@ -7,6 +7,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import org.springframework.http.MediaType;
+
 @Entity
 @Table ( name = "profileImages")
 public class ProfileImageModel {
@@ -22,6 +24,16 @@ public class ProfileImageModel {
 
     public Long getUserId() { return userId; }
 
+    @Column ( nullable = false )
+    public MediaType imageType;
+
+    public MediaType getImageType() {
+        return this.imageType;
+    }
+    public void setImageType(MediaType mt) {
+        imageType = mt;
+    }
+
 
     @Column ( nullable = false )
     public byte[] imageBytes;
@@ -31,15 +43,12 @@ public class ProfileImageModel {
 
     
     public ProfileImageModel() {
+        imageType = MediaType.ALL;
         imageBytes = new byte[0];
     }
 
-    public ProfileImageModel(Long userId) {
-        imageBytes = new byte[0];
-        this.userId = userId;
-    }
-
-    public ProfileImageModel(Long userId, byte[] imageBytes) {
+    public ProfileImageModel(Long userId, byte[] imageBytes, MediaType imageType) {
+        this.imageType = imageType;
         this.userId = userId;
         this.imageBytes = imageBytes;
     }

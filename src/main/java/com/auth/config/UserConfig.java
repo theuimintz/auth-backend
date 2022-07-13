@@ -15,6 +15,5 @@ public class UserConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new Pbkdf2PasswordEncoder(pepper, 200000, 256);
-    } 
-
+    }
 }
