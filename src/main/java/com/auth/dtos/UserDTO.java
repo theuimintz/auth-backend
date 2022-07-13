@@ -1,6 +1,10 @@
 package com.auth.dtos;
 
+import com.auth.models.UserModel;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserDTO {
 
     private Long id;
@@ -12,14 +16,23 @@ public class UserDTO {
         this.id = id;
     }
 
+    private String token;
 
-    private ProfileImageDTO profileImage;
+    public void setToken(String token) {
+        this.token = token;
+    }
 
-    public ProfileImageDTO getProfileImage() {
+    public String getToken() {
+        return token;
+    }
+
+    private ImageDTO profileImage;
+
+    public ImageDTO getProfileImage() {
         return this.profileImage;
     }
 
-    public void setProfileImage(ProfileImageDTO image) {
+    public void setProfileImage(ImageDTO image) {
         this.profileImage = image;
     }
 
@@ -74,14 +87,37 @@ public class UserDTO {
     }
 
 
-    public UserDTO(Long id, ProfileImageDTO image, String username, String firstName, String lastName, String email, String telNumber) {
-        this.id = id;
-        this.profileImage = image;
-        this.username = username;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.telNumber = telNumber;
+    public String password;
+
+    public String getPassword() {
+        return password;
     }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+
+    // region Contruction
+
+    public UserDTO() { }
+
+    public UserDTO(Long id, String token) {
+        this.id = id;
+        this.token = token;
+    }
+
+    public UserDTO(UserModel user) {
+        id = user.getId();
+        username = user.getUsername();
+        firstName = user.getFirstName();
+        lastName = user.getLastName();
+        email = user.getEmail();
+        telNumber = user.getTelNumber();
+
+        profileImage = user.getProfileImage();
+    }
+
+    // endregion
 
 }

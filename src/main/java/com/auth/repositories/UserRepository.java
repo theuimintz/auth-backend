@@ -10,8 +10,8 @@ import com.auth.models.UserModel;
 public interface UserRepository extends JpaRepository<UserModel, Long> {
     
     @Query ( value = "select * from users where username = ?1", nativeQuery = true )
-    public UserModel findByUsername( String username );
+    public UserModel getOne( String username );
 
     @Query ( value = "select * from users where id = ?1", nativeQuery = true )
-    public UserModel findByUserId( Long id );
+    public UserModel getOne( Long id );
 }

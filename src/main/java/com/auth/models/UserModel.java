@@ -1,7 +1,5 @@
 package com.auth.models;
 
-import java.nio.file.AccessMode;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -9,6 +7,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.auth.dtos.ImageDTO;
+import com.auth.dtos.UserDTO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
@@ -22,6 +22,18 @@ public class UserModel {
     private Long id;
 
     public Long getId() { return id; }
+
+
+    @Column( nullable = true )
+    private ImageDTO profileImage;
+
+    public ImageDTO getProfileImage() {
+        return profileImage;
+    }
+
+    public void setProfileImage(ImageDTO image) {
+        profileImage = image;
+    }
 
     
     @Column ( nullable = false, unique = true )
@@ -75,13 +87,14 @@ public class UserModel {
         password = "";
     }
 
-    public UserModel( String username, String firstName, String lastName, String telNumber, String email, String password ) {
-        this.username = username;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.telNumber = telNumber;
-        this.email = email;
-        this.password = password;
+    public UserModel(UserDTO user) {
+        this.username = user.getUsername();
+        this.firstName = user.getFirstName();
+        this.lastName = user.getLastName();
+        this.telNumber = user.getTelNumber();
+        this.email = user.getEmail();
+        this.password = user.getPassword();
+        this.profileImage = user.getProfileImage();
     }
 
     // endregion

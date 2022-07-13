@@ -1,18 +1,13 @@
 package com.auth.services;
 
-import java.io.IOException;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.auth.dtos.ProfileImageDTO;
+import com.auth.dtos.ImageDTO;
 import com.auth.dtos.UserDTO;
-import com.auth.models.ProfileImageModel;
 import com.auth.models.UserModel;
-import com.auth.repositories.ProfileImageRepository;
 import com.auth.repositories.UserRepository;
 import com.auth.util.JwtUtil;
 
@@ -23,68 +18,53 @@ public class UserService {
     private JwtUtil jwt;
 
     @Autowired
-    private ProfileImageRepository profileImageRepository;
-
-    @Autowired
     private UserRepository userRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
     
-    public void createNewUser(UserModel user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        userRepository.save(user);
-    }
+    
+    public void setProfileImage(String token, MultipartFile file) {
+        try {
+            String username = jwt.verifyToken(token).getSubject();
+            UserModel user = userRepository.getOne(username);
 
-    public String verifyUserPassword(String username, String password) {
-        UserModel user = userRepository.findByUsername(username);
-        if (user != null && passwordEncoder.matches(password, user.getPassword()))
-            return jwt.generateJwtToken(user.getUsername());
-        return null;
-    }
+            if (user == null) return;
 
-    public void setProfileImage(String authToken, MultipartFile image) throws IOException {
-        String username = jwt.verifyToken(authToken).getSubject();
-        UserModel user = userRepository.findByUsername(username);
-        if (user != null) {
-            
-            ProfileImageModel foundImg = profileImageRepository.getByUserId(user.getId());
-
-            if (foundImg != null) {
-                System.out.println(image.getContentType() + " " + image.getBytes().toString());
-                foundImg.setImageBytes(image.getBytes());
-                profileImageRepository.save(foundImg);
-                return;
-            }
-
-            ProfileImageModel img = new ProfileImageModel(user.getId(), image.getBytes(), MediaType.parseMediaType(image.getContentType()));           
-            profileImageRepository.save(img);
+            user.setProfileImage(new ImageDTO(file));
+            userRepository.save(user);
+        }
+        catch (Exception ex) {
+            System.out.println(ex);
         }
     }
 
-    public ProfileImageDTO getProfileImage(Long id) throws IOException {
-        UserModel user = userRepository.findByUserId(id);
-
-        if (user != null) {
-            ProfileImageModel img = profileImageRepository.getByUserId(user.getId());
-
-            if (img != null) {
-                return new ProfileImageDTO(img.getId(), img.getUserId(), img.getImageBytes(), img.getImageType());
-            }
+    public void createNewUser(UserDTO user) {
+        try {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+            userRepository.save(new UserModel(user));
         }
-
-        return null;
+        catch (Exception ex) {
+            System.out.println(ex);
+        }
     }
 
-    public UserDTO getById(Long id) {
-        UserModel user = userRepository.findByUserId(id);
-        ProfileImageModel img = profileImageRepository.getByUserId(id);
-
-        UserDTO userDTO = null;
-        if (user != null) {
-            userDTO = new UserDTO(user.getId(), new ProfileImageDTO(img.getId(), img.getUserId(), img.getImageBytes(), img.getImageType()), user.getUsername(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getTelNumber());
+    public UserDTO getUser(String username, String password) {
+        UserModel fuser = userRepository.getOne(username);
+        if (fuser != null && passwordEncoder.matches(password, fuser.getPassword())) {
+            return new UserDTO(fuser.getId(), jwt.generateJwtToken(fuser.getUsername()));
         }
+        return new UserDTO(); // Empty user data transfer object 
+    }
 
-        return userDTO;
+    public UserDTO getUser(Long id) {
+        UserModel user = userRepository.getOne(id);
+        return new UserDTO(user);
+    }
+
+    public UserDTO getUser(String username) {
+        UserModel user = userRepository.getOne(username);
+        return new UserDTO(user);
     }
 }
+
