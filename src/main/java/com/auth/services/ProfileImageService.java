@@ -8,6 +8,7 @@ import com.auth.models.ProfileImageModel;
 import com.auth.repositories.ProfileImageRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -33,7 +34,14 @@ public class ProfileImageService {
 
         Long userId = user.getId();
         ProfileImageModel profileImg = profileImageRepository.getByUserId(userId);
-        profileImageRepository.save((profileImg == null) ? new ProfileImageModel(userId, img) : profileImg);
+        if (profileImg != null) {
+            profileImg.setType(MediaType.parseMediaType(img.getContentType()));
+            profileImg.setBytes(img.getBytes());
+            profileImageRepository.save(profileImg);
+            return;
+        }
+
+        profileImageRepository.save(new ProfileImageModel(userId, img));
     }
 
        

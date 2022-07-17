@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,9 +36,16 @@ public class UserController {
         return ResponseEntity.status(401).body(null); // For unauthorized
     }
 
-
     @GetMapping( path = "/profile/all/{id}")
     public ResponseEntity<UserDTO> getPublicUserById(@PathVariable Long id) {
         return ResponseEntity.ok().body(userService.getById(id));
+    }
+
+    @GetMapping ( path = "/profile/all") 
+    public ResponseEntity<UserDTO> getPublicUserByToken(@RequestHeader String token) {
+        UserDTO user = userService.getByToken(token);
+
+        if (user != null) return ResponseEntity.status(200).body(user);
+        return ResponseEntity.status(401).body(null);
     }
 }
