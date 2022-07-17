@@ -5,11 +5,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.auth.dtos.ImageDTO;
+import java.io.IOException;
+
 import com.auth.dtos.UserDTO;
 import com.auth.models.UserModel;
 import com.auth.repositories.UserRepository;
 import com.auth.util.JwtUtil;
+import com.auth0.jwt.exceptions.JWTVerificationException;
 
 @Service
 public class UserService {
@@ -23,21 +25,6 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
     
-    
-    public void setProfileImage(String token, MultipartFile file) {
-        try {
-            String username = jwt.verifyToken(token).getSubject();
-            UserModel user = userRepository.getOne(username);
-
-            if (user == null) return;
-
-            user.setProfileImage(new ImageDTO(file));
-            userRepository.save(user);
-        }
-        catch (Exception ex) {
-            System.out.println(ex);
-        }
-    }
 
     public void createNewUser(UserDTO user) {
         try {
@@ -49,22 +36,28 @@ public class UserService {
         }
     }
 
-    public UserDTO getUser(String username, String password) {
+    public UserDTO getBySignInData(String username, String password) {
         UserModel fuser = userRepository.getOne(username);
         if (fuser != null && passwordEncoder.matches(password, fuser.getPassword())) {
             return new UserDTO(fuser.getId(), jwt.generateJwtToken(fuser.getUsername()));
         }
-        return new UserDTO(); // Empty user data transfer object 
+        return null; // Empty user data transfer object 
     }
 
-    public UserDTO getUser(Long id) {
+    public UserDTO getById(Long id) {
         UserModel user = userRepository.getOne(id);
         return new UserDTO(user);
     }
 
-    public UserDTO getUser(String username) {
+    public UserDTO getByUsername(String username) {
         UserModel user = userRepository.getOne(username);
         return new UserDTO(user);
     }
-}
+
+    public UserDTO getByToken(String token) throws JWTVerificationException {
+        UserModel user = userRepository.getOne(jwt.verifyToken(token).getSubject());
+        if (user != null) return new UserDTO(user);
+        return null;
+    }
+}   
 

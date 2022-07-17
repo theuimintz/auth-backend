@@ -26,17 +26,6 @@ public class UserDTO {
         return token;
     }
 
-    private ImageDTO profileImage;
-
-    public ImageDTO getProfileImage() {
-        return this.profileImage;
-    }
-
-    public void setProfileImage(ImageDTO image) {
-        this.profileImage = image;
-    }
-
-
     private String username;
 
     public String getUsername() {
@@ -114,8 +103,6 @@ public class UserDTO {
         lastName = user.getLastName();
         email = user.getEmail();
         telNumber = user.getTelNumber();
-
-        profileImage = user.getProfileImage();
     }
 
     // endregion

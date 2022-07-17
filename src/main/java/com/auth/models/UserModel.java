@@ -7,7 +7,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import com.auth.dtos.ImageDTO;
 import com.auth.dtos.UserDTO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -24,18 +23,6 @@ public class UserModel {
     public Long getId() { return id; }
 
 
-    @Column( nullable = true )
-    private ImageDTO profileImage;
-
-    public ImageDTO getProfileImage() {
-        return profileImage;
-    }
-
-    public void setProfileImage(ImageDTO image) {
-        profileImage = image;
-    }
-
-    
     @Column ( nullable = false, unique = true )
     private String username;
 
@@ -94,7 +81,6 @@ public class UserModel {
         this.telNumber = user.getTelNumber();
         this.email = user.getEmail();
         this.password = user.getPassword();
-        this.profileImage = user.getProfileImage();
     }
 
     // endregion
